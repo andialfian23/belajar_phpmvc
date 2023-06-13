@@ -18,11 +18,12 @@ class Mahasiswa extends Controller
     {
         if ($this->model('Mahasiswa_model')->tambahDataMahasiswa($_POST) > 0) {
             Flasher::setFlash('berhasil', 'ditambahkan', 'success');
+            $result = '1';
         } else {
             Flasher::setFlash('gagal', 'ditambahkan', 'danger');
+            $result = '0';
         }
-        header('Location: ' . BASEURL . '/mahasiswa');
-        exit;
+        echo json_encode($result);
     }
     public function hapus($id)
     {
@@ -36,7 +37,6 @@ class Mahasiswa extends Controller
     }
     public function getubah()
     {
-        // echo $_POST['id'];
         echo json_encode($this->model('Mahasiswa_model')->getMahasiswaById($_POST['id']));
     }
     public function ubah()

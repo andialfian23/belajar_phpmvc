@@ -1,25 +1,20 @@
 <div class="container mt-3">
-
+    <!-- NOTIF -->
     <div class="row">
         <div class="col-lg-8">
             <?php Flasher::flash(); ?>
         </div>
     </div>
-    <div class="row">
-        <div class="col-lg-8">
-            <button type="button" class="btn btn-primary mb-2 tombolTambahData" data-toggle="modal" data-target="#formModal">
-                Tambah Data Mahasiswa
-            </button>
-        </div>
-    </div>
+
     <div class="row">
         <div class="col-lg-8">
             <form action="<?= BASEURL ?>mahasiswa/cari" method="POST">
                 <div class="input-group">
+                    <button type="button" class="btn btn-primary tombolTambahData" data-toggle="modal" data-target="#formModal">
+                        Tambah Data Mahasiswa
+                    </button>
                     <input type="text" name="keyword" id="keyword" placeholder="Cari Mahasiswa" class="form-control" autocomplete="off">
-                    <div class="input-group-append">
-                        <button class="btn btn-primary" type="submit" id="tombolCari">Cari</button>
-                    </div>
+                    <button class="btn btn-primary" type="submit" id="tombolCari">Cari</button>
                 </div>
             </form>
         </div>
@@ -55,33 +50,122 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="<?= BASEURL ?>mahasiswa/tambah" method="POST">
-                    <div class="form-group">
-                        <label for="npm">NPM</label>
-                        <input type="text" class="form-control" id="npm" name="npm">
-                    </div>
-                    <div class="form-group">
-                        <label for="nama">Nama</label>
-                        <input type="text" class="form-control" id="nama" name="nama">
-                    </div>
-                    <div class="form-group">
-                        <label for="nama_prodi">Program Studi</label>
-                        <select class="form-control" id="nama_prodi" name="nama_prodi">
-                            <option>Informatika</option>
-                            <option>Teknik Mesin</option>
-                            <option>Teknik Sipil</option>
-                            <option>Teknik Industri</option>
-                            <option>Teknik Elektro</option>
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label for="npm">NPM</label>
+                    <input type="text" class="form-control" id="npm" name="npm">
+                    <small id="notif_npm" class="text-danger"></small>
+                </div>
+                <div class="form-group">
+                    <label for="nama">Nama</label>
+                    <input type="text" class="form-control" id="nama" name="nama">
+                    <small id="notif_nama" class="text-danger"></small>
+                </div>
+                <div class="form-group">
+                    <label for="nama_prodi">Program Studi</label>
+                    <select class="form-control" id="nama_prodi" name="nama_prodi">
+                        <option value="">-- Pilih Program Studi --</option>
+                        <option value="Informatika">Informatika</option>
+                        <option value="Teknik Mesin">Teknik Mesin</option>
+                        <option value="Teknik Sipil">Teknik Sipil</option>
+                        <option value="Teknik Industri">Teknik Industri</option>
+                        <option value="Teknik Elektro">Teknik Elektro</option>
+                    </select>
+                    <small id="notif_nama_prodi" class="text-danger"></small>
+                </div>
             </div>
             <div class="modal-footer">
                 <input type="hidden" name="id" id="id" />
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Tambah Data</button>
-                </form>
-
+                <button type="button" class="btn btn-primary" id="btn_submit_tambah">Tambah Data</button>
+                <button type="button" class="btn btn-primary" id="btn_submit_edit">Edit Data</button>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    $(function() {
+        //TAMBAH
+        $('.tombolTambahData').click(function() {
+            $('#formModalLabel').html('Tambah Data Mahasiswa');
+            $('#btn_submit_tambah').removeClass('d-none');
+            $('#btn_submit_edit').addClass('d-none');
+        });
+        $('#btn_submit_tambah').click(function() {
+            // alert('lol');
+            if ($('#npm').val() == '') {
+                $('#npm').addClass('border border-danger');
+                $('#notif_npm').html('NPM Masih Kosong');
+                return false;
+            } else {
+                $('#npm').removeClass('border border-danger');
+                $('#notif_npm').html('');
+            }
+
+            if ($('#nama').val() == '') {
+                $('#nama').addClass('border border-danger');
+                $('#notif_nama').html('Nama Masih Kosong');
+                return false;
+            } else {
+                $('#nama').removeClass('border border-danger');
+                $('#notif_nama').html('');
+            }
+
+            if ($('#nama_prodi').val() == '') {
+                $('#nama_prodi').addClass('border border-danger');
+                $('#notif_nama_prodi').html('Nama Prodi Belum Dipilih');
+                return false;
+            } else {
+                $('#nama_prodi').removeClass('border border-danger');
+                $('#notif_nama_prodi').html('');
+            }
+
+            $.ajax({
+                url: "http://localhost/phpmvc/public/mahasiswa/tambah",
+                type: "POST",
+                data: {
+                    npm: $('#npm').val(),
+                    nama: $('#nama').val(),
+                    nama_prodi: $('#nama_prodi').val(),
+                },
+                dataType: 'json',
+                success: function(res) {
+                    if (res == '1') {
+                        setTimeout(function() {
+                            window.location.replace("http://localhost/phpmvc/public/mahasiswa");
+                        }, 2000);
+                    } else {
+                        setTimeout(function() {
+                            window.location.replace("http://localhost/phpmvc/public/mahasiswa");
+                        }, 2000);
+                    }
+                }
+            });
+        });
+
+        //EDIT
+        $('.tampilModalUbah').click(function() {
+            $('#formModalLabel').html('Ubah Data Mahasiswa');
+            $('#btn_submit_tambah').addClass('d-none');
+            $('#btn_submit_edit').removeClass('d-none');
+
+            const id = $(this).data('id');
+            $.ajax({
+                url: 'http://localhost/phpmvc/public/mahasiswa/getubah',
+                data: {
+                    id: id
+                },
+                method: 'post',
+                dataType: 'json',
+                success: function(data) {
+                    console.log(data);
+                    $('#nama').val(data.nama);
+                    $('#npm').val(data.npm);
+                    $('#id').val(data.id);
+                    $('#nama_prodi').val(data.nama_prodi);
+                }
+            });
+        });
+        $('')
+    });
+</script>
